@@ -15,7 +15,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-var port = flag.Int("port", 80, "port to listen on")
+var listenAddr = flag.String("listen-addr", "127.0.0.1:8080", "addr and port to listen on")
 var plainHttp = flag.Bool("plain-http", false, "if true, don't use https")
 var certFile = flag.String("cert-file", "", "path to the server certificate")
 var keyFile = flag.String("key-file", "", "path to the server private key")
@@ -42,16 +42,15 @@ func main() {
 		handleCmd(w, r, users, simHydra)
 	})
 
-	addr := fmt.Sprintf(":%d", *port)
 	if *plainHttp {
-		fmt.Println("Listening plain HTTP")
-		if err := http.ListenAndServe(addr, nil); err != nil {
+		fmt.Printf("Listening plain HTTP %s\n", *listenAddr)
+		if err := http.ListenAndServe(*listenAddr, nil); err != nil {
 			fmt.Println("Error starting server:", err)
 			return
 		}
 	} else {
-		fmt.Println("Listening HTTPS")
-		if err := http.ListenAndServeTLS(addr, *certFile, *keyFile, nil); err != nil {
+		fmt.Printf("Listening HTTPS %s\n", *listenAddr)
+		if err := http.ListenAndServeTLS(*listenAddr, *certFile, *keyFile, nil); err != nil {
 			fmt.Println("Error starting server:", err)
 			return
 		}
